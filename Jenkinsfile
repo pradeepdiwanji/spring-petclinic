@@ -18,9 +18,7 @@ node {
                                 goals: 'clean compile install -DskipTests',
                                 deployerId: "MAVEN_DEPLOYER",
                                 resolverId: "MAVEN_RESOLVER"
-                      
-                    }
-            
+                    )
         }
         stage ('Tests') {
             parallel 'static': {
