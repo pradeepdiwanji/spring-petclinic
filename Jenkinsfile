@@ -7,9 +7,8 @@ node {
             checkout scm
         }
         stage ('Build') {
-           // sh "echo 'shell scripts to build project...'"
-            sh 'make' 
-            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+            sh "echo 'shell scripts to build project...'"
+            
         }
         stage ('Tests') {
             parallel 'static': {
