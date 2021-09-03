@@ -1,20 +1,58 @@
 pipeline {
     agent any
-
     stages {
-        stage('Build') {
+        stage ('Clone') {
             steps {
-                echo 'Building..'
+               //git branch: 'master', url: "https://github.com/jfrog/project-examples.git"
+               checkout scm
             }
         }
-        stage('Test') {
+
+        stage ('Artifactory configuration') {
             steps {
-                echo 'Testing..'
+                rtServer (
+                    id: 'localhost',
+                    url: 'http://localhost:8082/artifactory',
+                    credentialsId: 'admin_pradeep_artifactory'
+                )
+
+                rtMavenDeployer (
+                    id: "MAVEN_DEPLOYER",
+                    serverId: 'localhost',
+                    releaseRepo: 'local-lib-maven',
+                    snapshotRepo: 'local-lib-maven'
+                )
+
+                rtMavenResolver (
+                    id: "MAVEN_RESOLVER",
+                    serverId: 'localhost',
+                    releaseRepo: 'local-lib-maven',
+                    snapshotRepo: 'local-lib-maven'
+                )
             }
         }
-        stage('Deploy') {
+
+        stage ('Exec Maven') {
+         environment {
+                   //MAVEN_HOME = '/usr/local/Cellar/maven/3.8.2/libexec'
+                   JAVA_HOME= '/Applications/Eclipse JEE.app/Contents/Eclipse/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.macosx.x86_64_16.0.1.v20210528-1205/jre'
+                   }
             steps {
-                echo 'Deploying....'
+                rtMavenRun (
+                    tool: 'Maven3', // Tool name from Jenkins configuration
+                    pom: 'pom.xml',
+                    goals: 'clean compile install -DskipTests',
+                    //deployerId: "MAVEN_DEPLOYER",
+                    //resolverId: "MAVEN_RESOLVER"
+                )
+            }
+        }
+
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: 'localhost'
+                )
             }
         }
     }
