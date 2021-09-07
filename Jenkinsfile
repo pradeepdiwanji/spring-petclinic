@@ -43,27 +43,10 @@ pipeline {
                     pom: 'pom.xml',
                     goals: 'clean compile install -DskipTests',
                     //deployerId: "MAVEN_DEPLOYER",
-                    //resolverId: "MAVEN_RESOLVER"
+                    resolverId: "MAVEN_RESOLVER"
                 )
             }
-        }
-
-       stage ('xray-scan'){
-       
-       steps {
-       xrayScan (
-			    serverId: 'JfrogArtifactory',
-			    // If the build name and build number are not set here, the current job name and number will be used:
-			    buildName: 'sample-jenkins-pipe',
-			    buildNumber: '64',
-			    // Optional - Only if this build is associated with a project in Artifactory, set the project key as follows.
-			    //project: 'my-project-key',   
-			    // If the build is found vulnerable, the job will fail by default. If you do not wish it to fail:
-			    failBuild: false
-            )
-            }
-       }
-       
+        }       
        
         stage ('Publish build info') {
             steps {
@@ -72,5 +55,14 @@ pipeline {
                 )
             }
         }
+        
+          stage ('Xray scan') {
+            steps {
+                xrayScan (
+                    serverId: "JfrogArtifactory",
+                    failBuild: false
+                )
+            }
+            }
     }
 }
