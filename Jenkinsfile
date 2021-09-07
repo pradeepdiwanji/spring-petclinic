@@ -49,6 +49,8 @@ pipeline {
         }
 
        stage ('xray-scan'){
+       
+       steps {
        xrayScan (
 			    serverId: 'JfrogArtifactory',
 			    // If the build name and build number are not set here, the current job name and number will be used:
@@ -59,6 +61,7 @@ pipeline {
 			    // If the build is found vulnerable, the job will fail by default. If you do not wish it to fail:
 			    failBuild: false
             )
+            }
        }
        
        
